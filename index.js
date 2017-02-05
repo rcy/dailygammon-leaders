@@ -13,8 +13,6 @@ const scrape = (login, password, count, handler) => {
       throw error;
     }
 
-    const cookie = response.headers['set-cookie'];
-
     const $ = cheerio.load(html);
 
     assert.equal($('h2').text(), `Welcome to DailyGammon, ${login}.`);
