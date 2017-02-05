@@ -3,7 +3,7 @@ const request = require('request');
 const cheerio = require('cheerio');
 const assert = require('assert');
 
-function scrape() {
+const scrape = (login, password, count, handler) => {
   const r = request.defaults({ jar: true })
 
   r.post('http://www.dailygammon.com/bg/login/', {
@@ -19,7 +19,7 @@ function scrape() {
 
     assert.equal($('h2').text(), `Welcome to DailyGammon, ${login}.`);
 
-    r('http://www.dailygammon.com/bg/plist?type=rate&length=10',
+    r(`http://www.dailygammon.com/bg/plist?type=rate&length=${count||10}`,
       (error, response, html) => {
         if (error) {
           throw error;
@@ -40,7 +40,7 @@ function scrape() {
           const rating = +cols.eq(4).text();
           const experience = +cols.eq(6).text();
 
-          console.log({ rank, username, rating, experience });
+          handler && handler({ rank, username, rating, experience });
         });
       });
   });
@@ -52,4 +52,6 @@ const password = process.env.PASSWORD;
 assert(login, '$USERNAME not set');
 assert(password, '$PASSWORD not set');
 
-scrape(login, password);
+scrape(login, password, 100, function (o) {
+  console.log(o.username);
+});
