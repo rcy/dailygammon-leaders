@@ -1,9 +1,13 @@
+"use strict";
+
 const fs = require('fs');
 const request = require('request');
 const cheerio = require('cheerio');
 const assert = require('assert');
+const insertRecord = require('./graphql.js').insertRecord;
+const queue = require('queue');
 
-const scrape = (login, password, count, handler) => {
+const scrape = (login, password, count, handler, done) => {
   const r = request.defaults({ jar: true })
 
   r.post('http://www.dailygammon.com/bg/login/', {
@@ -41,6 +45,8 @@ const scrape = (login, password, count, handler) => {
 
           handler && handler({ userId, username, rank, rating, experience });
         });
+
+        done && done();
       });
   });
 }
@@ -51,6 +57,26 @@ const password = process.env.PASSWORD;
 assert(login, '$USERNAME not set');
 assert(password, '$PASSWORD not set');
 
-scrape(login, password, 10, function (o) {
-  console.log(o.userId, o.username);
-});
+const jobs = [];
+
+var count = 0;
+
+scrape(login, password, 10000,
+       function (rec) {
+         jobs.push(function (cb) {
+           console.log('doing thing', count++);
+           insertRecord(rec, function () {
+             cb();
+             //setTimeout(cb, 1000);
+           });
+         })
+       },
+       function() {
+         console.log('done, starting queue');
+         processNextJob();
+       });
+
+function processNextJob() {
+  const fn = jobs.shift();
+  fn && fn(processNextJob);
+}
