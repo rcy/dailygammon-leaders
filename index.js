@@ -34,11 +34,12 @@ const scrape = (login, password, count, handler) => {
           const cols = $(r).children();
 
           const rank = +cols.eq(1).text();
+          const userId = +cols.eq(3).children('a').attr('href').split('/')[3];
           const username = cols.eq(3).text();
           const rating = +cols.eq(4).text();
           const experience = +cols.eq(6).text();
 
-          handler && handler({ rank, username, rating, experience });
+          handler && handler({ userId, username, rank, rating, experience });
         });
       });
   });
@@ -50,6 +51,6 @@ const password = process.env.PASSWORD;
 assert(login, '$USERNAME not set');
 assert(password, '$PASSWORD not set');
 
-scrape(login, password, 100, function (o) {
-  console.log(o.username);
+scrape(login, password, 10, function (o) {
+  console.log(o.userId, o.username);
 });
