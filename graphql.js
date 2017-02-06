@@ -1,7 +1,7 @@
 const request = require('request');
 const assert = require('assert');
 
-const endpoint = 'http://localhost:8080/graphql';
+const endpoint = process.env.GRAPHQL_URL || 'http://localhost:8080/graphql';
 
 function getPlayers() {
   request.post(endpoint, {
