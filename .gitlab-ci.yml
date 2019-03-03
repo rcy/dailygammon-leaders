@@ -1,3 +1,8 @@
 job1:
   script: echo test job1
 
+job2:
+  script: echo scheduled thing
+  only:
+    - schedules
+
