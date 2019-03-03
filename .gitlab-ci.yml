@@ -1,4 +1,8 @@
+image: node:8
+
 buildjob:
+  only:
+    - pushes
   script:
     - npm install
 
