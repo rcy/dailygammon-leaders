@@ -1,8 +1,10 @@
-job1:
-  script: echo test job1
+buildjob:
+  script:
+    - npm install
 
-job2:
-  script: echo scheduled thing
+scrape-leaderboard:
   only:
     - schedules
-
+  script:
+    - npm install
+    - npm start
